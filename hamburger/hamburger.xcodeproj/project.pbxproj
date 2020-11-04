@@ -13,6 +13,7 @@
 		161CA4762550D415006AD2F4 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4722550D415006AD2F4 /* SDL2_image.framework */; };
 		161CA4772550D415006AD2F4 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4732550D415006AD2F4 /* SDL2.framework */; };
 		161CA47B2550D431006AD2F4 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161CA4792550D431006AD2F4 /* Core.cpp */; };
+		16B1A70325524FE3005CA2C3 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B1A70125524FE3005CA2C3 /* Controller.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,8 @@
 		161CA4732550D415006AD2F4 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		161CA4792550D431006AD2F4 /* Core.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core.cpp; sourceTree = "<group>"; };
 		161CA47A2550D431006AD2F4 /* Core.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Core.hpp; sourceTree = "<group>"; };
+		16B1A70125524FE3005CA2C3 /* Controller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
+		16B1A70225524FE3005CA2C3 /* Controller.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Controller.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,8 @@
 			isa = PBXGroup;
 			children = (
 				161CA4672550D3E4006AD2F4 /* main.cpp */,
+				16B1A70125524FE3005CA2C3 /* Controller.cpp */,
+				16B1A70225524FE3005CA2C3 /* Controller.hpp */,
 				161CA4792550D431006AD2F4 /* Core.cpp */,
 				161CA47A2550D431006AD2F4 /* Core.hpp */,
 			);
@@ -148,6 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				161CA47B2550D431006AD2F4 /* Core.cpp in Sources */,
+				16B1A70325524FE3005CA2C3 /* Controller.cpp in Sources */,
 				161CA4682550D3E4006AD2F4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

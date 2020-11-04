@@ -7,23 +7,16 @@
 
 #include <iostream>
 #include "Core.hpp"
+#include "Controller.hpp"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::cout << "Hello, World!\n";
     Core Base;
-    bool done = false;
+    Controller controller;
     
-    SDL_Event e;
-    while(!done){
-        Base.GAME_WINDOW
-        while( SDL_PollEvent( &e ) != 0 ){
-            //User requests quit
-            if( e.type == SDL_QUIT )
-            {
-                done = true;
-            }
-        }
+    while(!controller.quit){
+        controller.pollEvents();
+        controller.printControl();
     }
     return 0;
 }
