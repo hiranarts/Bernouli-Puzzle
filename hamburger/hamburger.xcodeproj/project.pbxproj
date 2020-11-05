@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		160FD4F4255395EE00C3571A /* Board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 160FD4F2255395EE00C3571A /* Board.cpp */; };
 		161CA4682550D3E4006AD2F4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161CA4672550D3E4006AD2F4 /* main.cpp */; };
 		161CA4742550D415006AD2F4 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4702550D414006AD2F4 /* SDL2_ttf.framework */; };
 		161CA4752550D415006AD2F4 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4712550D414006AD2F4 /* SDL2_mixer.framework */; };
@@ -29,6 +30,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		160FD4F2255395EE00C3571A /* Board.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Board.cpp; sourceTree = "<group>"; };
+		160FD4F3255395EE00C3571A /* Board.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
 		161CA4642550D3E4006AD2F4 /* hamburger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hamburger; sourceTree = BUILT_PRODUCTS_DIR; };
 		161CA4672550D3E4006AD2F4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		161CA4702550D414006AD2F4 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -81,6 +84,8 @@
 				16B1A70225524FE3005CA2C3 /* Controller.hpp */,
 				161CA4792550D431006AD2F4 /* Core.cpp */,
 				161CA47A2550D431006AD2F4 /* Core.hpp */,
+				160FD4F2255395EE00C3571A /* Board.cpp */,
+				160FD4F3255395EE00C3571A /* Board.hpp */,
 			);
 			path = hamburger;
 			sourceTree = "<group>";
@@ -154,6 +159,7 @@
 			files = (
 				161CA47B2550D431006AD2F4 /* Core.cpp in Sources */,
 				16B1A70325524FE3005CA2C3 /* Controller.cpp in Sources */,
+				160FD4F4255395EE00C3571A /* Board.cpp in Sources */,
 				161CA4682550D3E4006AD2F4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
