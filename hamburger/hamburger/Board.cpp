@@ -29,7 +29,7 @@ void Board::printBoard(){
     }
 }
 
-bool Board::addRandomVariable(int i, int j, float X, float P){
+bool Board::addPMF(int i, int j, float X, float P){
     if(random_variables[i][j].size() > 9){
         printf("Cant add any more random variables, too many pmfs\n");
         return false;

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		160FD4F4255395EE00C3571A /* Board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 160FD4F2255395EE00C3571A /* Board.cpp */; };
+		160FD4F8255425A100C3571A /* UI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 160FD4F6255425A100C3571A /* UI.cpp */; };
+		160FD4FD2554C43400C3571A /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 160FD4FB2554C43400C3571A /* Texture.cpp */; };
 		161CA4682550D3E4006AD2F4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161CA4672550D3E4006AD2F4 /* main.cpp */; };
 		161CA4742550D415006AD2F4 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4702550D414006AD2F4 /* SDL2_ttf.framework */; };
 		161CA4752550D415006AD2F4 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161CA4712550D414006AD2F4 /* SDL2_mixer.framework */; };
@@ -32,6 +34,10 @@
 /* Begin PBXFileReference section */
 		160FD4F2255395EE00C3571A /* Board.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Board.cpp; sourceTree = "<group>"; };
 		160FD4F3255395EE00C3571A /* Board.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
+		160FD4F6255425A100C3571A /* UI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UI.cpp; sourceTree = "<group>"; };
+		160FD4F7255425A100C3571A /* UI.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UI.hpp; sourceTree = "<group>"; };
+		160FD4FB2554C43400C3571A /* Texture.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		160FD4FC2554C43400C3571A /* Texture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Texture.hpp; sourceTree = "<group>"; };
 		161CA4642550D3E4006AD2F4 /* hamburger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hamburger; sourceTree = BUILT_PRODUCTS_DIR; };
 		161CA4672550D3E4006AD2F4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		161CA4702550D414006AD2F4 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -79,7 +85,11 @@
 		161CA4662550D3E4006AD2F4 /* hamburger */ = {
 			isa = PBXGroup;
 			children = (
+				160FD4F6255425A100C3571A /* UI.cpp */,
+				160FD4F7255425A100C3571A /* UI.hpp */,
 				161CA4672550D3E4006AD2F4 /* main.cpp */,
+				160FD4FB2554C43400C3571A /* Texture.cpp */,
+				160FD4FC2554C43400C3571A /* Texture.hpp */,
 				16B1A70125524FE3005CA2C3 /* Controller.cpp */,
 				16B1A70225524FE3005CA2C3 /* Controller.hpp */,
 				161CA4792550D431006AD2F4 /* Core.cpp */,
@@ -157,9 +167,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				160FD4F8255425A100C3571A /* UI.cpp in Sources */,
 				161CA47B2550D431006AD2F4 /* Core.cpp in Sources */,
 				16B1A70325524FE3005CA2C3 /* Controller.cpp in Sources */,
 				160FD4F4255395EE00C3571A /* Board.cpp in Sources */,
+				160FD4FD2554C43400C3571A /* Texture.cpp in Sources */,
 				161CA4682550D3E4006AD2F4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

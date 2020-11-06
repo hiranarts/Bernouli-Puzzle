@@ -20,7 +20,8 @@ public:
     Board();
     void printBoard();
     void printRandomVariable(int i , int j);
-    bool addRandomVariable(int i, int j, float X, float P);
+    bool addPMF(int i, int j, float X, float P);
+    bool subtractPMF(int i, int j, float X, float P);
     
 };
 

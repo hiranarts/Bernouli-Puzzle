@@ -19,9 +19,8 @@ private:
     int left;
     int right;
     
-    int mLeftClick;
     int mRightClick;
-    SDL_Point mPosition;
+   
     
     SDL_Event event;
 public:
@@ -30,6 +29,9 @@ public:
     void pollEvents();
     bool quit;
     void printControl();
+    int mLeftClick;
+    SDL_Point mPosition;
+
 
     
 };

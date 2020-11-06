@@ -18,13 +18,14 @@
 class Core{
 private:
     SDL_DisplayMode DEVICE;
-        
     
     //Private methods
     bool init();
     bool initWindowAndRenderer();
     
 public:
+    int width;
+    int height;
     SDL_Window* GAME_WINDOW;
     SDL_Renderer* RENDERER;
 

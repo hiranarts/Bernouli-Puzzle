@@ -36,7 +36,7 @@ bool Core::initWindowAndRenderer(){
         SDL_Log("Could not capture current display mode! ERROR: %s\n", SDL_GetError());
         return false;
     }
-    GAME_WINDOW = SDL_CreateWindow("HAMBURGER", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 414, 736, SDL_WINDOW_OPENGL);
+    GAME_WINDOW = SDL_CreateWindow("HAMBURGER", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
     if(GAME_WINDOW == NULL){
         SDL_Log("GAME_WINDOW could not be created! ERROR %s\n", SDL_GetError());
         return false;
@@ -53,6 +53,8 @@ bool Core::initWindowAndRenderer(){
     }
 }
 Core::Core(){
+    width = 414;
+    height = 736;
     if (!init()){
         SDL_Log("SDL framkeworks are not working please fix me!\n");
     }
