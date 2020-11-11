@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include "Controller.hpp"
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -25,13 +26,18 @@ typedef struct Component{
 class UI{
 private:
     //base area, everything should be located relative to this rectangle
-    
+    //slider that is a one off
+    //how far can the slider move from its center
+    //TODO: This should be calculated from a single value
+    int slider_max_range;
+    int slider_min_range;
     
 public:
     SDL_Rect Base;
-
-    vector<Component> components;
     
+    vector<Component> components;
+    //figure out which component was clicked on
+    void mouseSelection(Controller* controller);
     UI(int x , int y, int width, int height);
     //x and y are relative to the base of the UI
     bool addComponent(int x, int y, int w, int h);
@@ -41,6 +47,10 @@ public:
     //get center position
     SDL_Point getCenterOfUI();
     SDL_Point getCenterOfComponent(int i, int j);
+    Component slider;
+    void createSlider(int width, int height, int range);
+    void updateSlider(SDL_Point mousePosition);
+    
     
 };
 

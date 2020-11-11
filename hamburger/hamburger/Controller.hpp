@@ -31,8 +31,6 @@ public:
     void printControl();
     int mLeftClick;
     SDL_Point mPosition;
-
-
     
 };
 

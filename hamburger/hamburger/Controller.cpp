@@ -22,6 +22,11 @@ Controller::Controller(){
 }
 
 void Controller::pollEvents(){
+    //TODO:Find a more elegant solution for mouse/touch holds
+    //mouse holds
+    if(mLeftClick>0){
+        mLeftClick+=1;
+    }
     while(SDL_PollEvent(&event)){
         switch (event.type) {
             case SDL_QUIT:
@@ -67,7 +72,7 @@ void Controller::pollEvents(){
                 SDL_GetMouseState(&mPosition.x, &mPosition.y);
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                mLeftClick += 1;
+                mLeftClick = 1;
                 break;
             case SDL_MOUSEBUTTONUP:
                 mLeftClick = 0;
