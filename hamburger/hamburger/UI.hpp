@@ -34,7 +34,7 @@ private:
     
 public:
     SDL_Rect Base;
-    
+    float slider_position;
     vector<Component> components;
     //figure out which component was clicked on
     void mouseSelection(Controller* controller);
@@ -50,6 +50,7 @@ public:
     Component slider;
     void createSlider(int width, int height, int range);
     void updateSlider(SDL_Point mousePosition);
+    void sliderPosition();
     
     
 };

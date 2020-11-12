@@ -17,7 +17,7 @@ void initGameUI(UI* menu){
     int width = 40;
     int height = 30;
     //menu->addComponent(center.x-(width/2), center.y-(height/2), width, height);
-    menu->createSlider(width, height, 30);
+    menu->createSlider(width, height, 100);
     
 }
 
@@ -81,6 +81,8 @@ int main(int argc, const char * argv[]) {
         board_grid.mouseSelection(&controller);
         //update UI
         board_control.mouseSelection(&controller);
+        //slidershit
+        board_control.sliderPosition();
         //timah to dra
         SDL_SetRenderDrawColor(Core.RENDERER, 32, 98, 187, 12);
         SDL_RenderFillRect(Core.RENDERER, &board_control.Base);
@@ -88,6 +90,7 @@ int main(int argc, const char * argv[]) {
         SDL_RenderFillRect(Core.RENDERER, &board_control.slider.area);
         SDL_SetRenderDrawColor(Core.RENDERER, 0, 130, 23, 30);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.Base);
+        
         
         
         

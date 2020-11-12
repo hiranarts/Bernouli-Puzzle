@@ -6,6 +6,7 @@
 //
 
 #include "UI.hpp"
+
 //first use case is the home screen
 UI::UI(int x, int y, int width, int height){
     
@@ -22,22 +23,27 @@ void UI::createSlider(int width, int height, int range){
     slider.area = temp;
     slider.clicked = 0;
     slider.hover = 0;
+    slider_position = 0.0f;
     
     slider_max_range = slider.area.x + range;
-    slider_min_range = slider.area.x - range;
+    slider_min_range = slider.area.x;
     
 }
 
+//slider location is going to be used for other functions
+void UI::sliderPosition(){
+    printf("slider pos %d\n", ((slider.area.x+slider.area.w/2) - slider_min_range));
+}
 void UI::updateSlider(SDL_Point mPosition){
     //first do bound detection
-    if(mPosition.x < slider.area.x - slider_min_range){
-        slider.area.x = slider.area.x - slider_min_range;
+    if(mPosition.x < slider_min_range){
+        slider.area.x = slider_min_range - slider.area.w/2;
     }
-    else if(mPosition.x > slider.area.x + slider_max_range){
-        slider.area.x = slider.area.x  + slider_max_range;
+    else if(mPosition.x > slider_max_range){
+        slider.area.x = slider_max_range - slider.area.w/2;
     }
     else{
-        slider.area.x = mPosition.x-slider.area.w/2;
+        slider.area.x = mPosition.x - slider.area.w/2;
     }
 }
 void UI::mouseSelection(Controller* controller){
@@ -57,16 +63,21 @@ void UI::mouseSelection(Controller* controller){
             
         }
         if(SDL_PointInRect(&controller->mPosition, &slider.area)){
-            printf("Slider clicked?\n");
-            updateSlider(controller->mPosition);
+            slider.clicked++;
         }
     }
+    //if the user released the mouse button
     else{
         //reset it to 0
         for(int i = 0; i < components.size(); i++){
             components[i].clicked = 0;
         }
+        slider.clicked = 0;
     
+    }
+    
+    if (slider.clicked > 0){
+        updateSlider(controller->mPosition);
     }
 }
 
