@@ -21,7 +21,7 @@ void initGameUI(UI* menu){
     int height = 30;
     //menu->addComponent(center.x-(width/2), center.y-(height/2), width, height);
     menu->createSlider(46*1,46*15,width, height, 46*2);
-    //menu->setSliderPosition(0.0f);
+    menu->setSliderPosition(0.0f);
 
 }
 
@@ -37,6 +37,8 @@ void initBoardUI(UI* board){
         }
     }
     //board->addComponent(center.x - width/2, center.y - height/2, width , height);
+    board->createSlider(46*1, 46*14, 40, 30, 46*2);
+    board->setSliderPosition(0.0f);
 }
 
 void drawUI( SDL_Renderer* RENDERER,UI* ui){
@@ -64,10 +66,17 @@ void drawAspectRatioGrid(int xaspect, int yaspect,Core* DEVICE){
 }
 
 const int aspect_tile_size = 46;
-string getProbability(UI* menu){
+string getProbabilityString(UI* menu){
     stringstream ss;
     ss.precision(2);
     ss << "Probability: " << menu->getSliderPosition();
+    return ss.str();
+}
+
+string getValueString(UI* menu){
+    stringstream ss;
+    ss.precision(2);
+    ss << "Value: " << menu->getSliderPosition();
     return ss.str();
 }
 int main(int argc, const char * argv[]) {
@@ -81,46 +90,59 @@ int main(int argc, const char * argv[]) {
     initBoardUI(&board_grid);
     Board model(36);
     Texture text(0,0,60,60);
+    Texture val(0,46,60,60);
     SDL_Color white = {255,255,255};
     text.setFont("fonts/CaviarDreams.ttf", 24);
-    SDL_Rect debug = {46*4,46*15,40, 30};
+    val.setFont("fonts/CaviarDreams.ttf", 24);
+    
     while(!controller.quit){
         controller.pollEvents();
         
         
-        //update board
+        //board update controller
         board_grid.mouseSelection(&controller);
-        
-        //update ui
-        if (board_grid.last_selected_component == -1){
-            board_control.setSliderPosition(0.0f);
-        }
-        else{
-            board_control.setSliderPosition(model.bernoulis[board_grid.last_selected_component]);
-        }
-        
         board_control.mouseSelection(&controller);
 
+        //update ui
+        board_control.setSliderPosition(model.bernoulis[board_grid.last_selected_component]);
+        board_grid.setSliderPosition(model.vals[board_grid.last_selected_component]);
         
+         //update slider
+        if(board_control.slider.clicked > 0){
+            board_control.updateSlider(controller.mPosition);
+        }
+        
+        if(board_grid.slider.clicked > 0){
+            board_grid.updateSlider(controller.mPosition);
+        }
+
         //update model
-        model.updateBernouli(board_grid.last_selected_component, board_control.getSliderPosition());
+        model.updateBernouli(board_grid.last_selected_component, board_control.getSliderPosition(),board_grid.getSliderPosition());
         
         //timah to dra
         SDL_SetRenderDrawColor(Core.RENDERER, 32, 98, 187, 12);
         SDL_RenderFillRect(Core.RENDERER, &board_control.Base);
+        
+        //draw sliders
         SDL_SetRenderDrawColor(Core.RENDERER, 254, 232, 87, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(Core.RENDERER, &board_control.slider.area);
+        SDL_SetRenderDrawColor(Core.RENDERER, 30, 232, 87, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(Core.RENDERER, &board_grid.slider.area);
+        
+        
+        
         SDL_SetRenderDrawColor(Core.RENDERER, 0, 130, 23, 30);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.Base);
         
-        SDL_RenderFillRect(Core.RENDERER, &debug);
         
         drawUI(Core.RENDERER, &board_grid);
         //draw 9:16 grid
         drawAspectRatioGrid(9,16,&Core);
         //slidershit
-        text.textureFromString(Core.RENDERER, white, getProbability(&board_control));
+        text.textureFromString(Core.RENDERER, white, getProbabilityString(&board_control));
+        val.textureFromString(Core.RENDERER, white, getValueString(&board_grid));
         text.render(Core.RENDERER);
+        val.render(Core.RENDERER);
 
         SDL_RenderPresent(Core.RENDERER);
 

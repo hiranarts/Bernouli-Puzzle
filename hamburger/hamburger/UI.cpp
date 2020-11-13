@@ -89,10 +89,6 @@ void UI::mouseSelection(Controller* controller){
         slider.clicked = 0;
     
     }
-    
-    if (slider.clicked > 0){
-        updateSlider(controller->mPosition);
-    }
 }
 
 //

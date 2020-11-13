@@ -20,6 +20,7 @@ Board::Board(int no_pieces){
     //initialize all the bernouli rv
     for (int i = 0; i < no_pieces; i++){
         bernoulis.push_back(0.0f);
+        vals.push_back(0.0f);
     }
 }
 
@@ -27,7 +28,7 @@ void Board::printRandomVariable(int i , int j){
     printf("X:%d, P:%.2f", 0,random_variables[i][j].at(0));
 }
 
-void Board::updateBernouli(int i, float p){
+void Board::updateBernouli(int i, float p,float val){
     if (p >1 || p < 0){
         printf("INCORRECT INPUT FOR BERNOULI RV\n");
     }
@@ -36,6 +37,8 @@ void Board::updateBernouli(int i, float p){
     }
     else{
         bernoulis[i] = p;
+        //printf("%d\n", i);
+        vals[i] = val;
     }
 }
 

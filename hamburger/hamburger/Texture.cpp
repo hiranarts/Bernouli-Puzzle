@@ -26,8 +26,7 @@ void Texture::free()
     {
         SDL_DestroyTexture( mTexture );
         mTexture = NULL;
-        dimensions.x = 0;
-        dimensions.y = 0;
+        
         dimensions.w = 0;
         dimensions.h = 0;
     }
