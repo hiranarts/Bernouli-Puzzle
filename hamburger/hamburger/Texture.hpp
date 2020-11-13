@@ -20,7 +20,7 @@ public:
     ~Texture();
     void free();
     //create texture from text that fits the texture box.
-    void textureFromString(std::string input, SDL_Color color,SDL_Renderer* Render);
+    void textureFromString(SDL_Renderer* Render,SDL_Color color,std::string input);
     void setFont(std::string path,int size);
     
     void render(SDL_Renderer* Render);

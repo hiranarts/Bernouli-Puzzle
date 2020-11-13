@@ -5,7 +5,10 @@
 //  Created by Ali Hamdani on 11/2/20.
 //
 
+#include <string>
+#include <sstream>
 #include <iostream>
+
 #include "Core.hpp"
 #include "Controller.hpp"
 #include "Board.hpp"
@@ -13,12 +16,13 @@
 #include "Texture.hpp"
 
 void initGameUI(UI* menu){
-    SDL_Point center = menu->getCenterOfUI();
+    
     int width = 40;
     int height = 30;
     //menu->addComponent(center.x-(width/2), center.y-(height/2), width, height);
-    menu->createSlider(width, height, 100);
-    
+    menu->createSlider(46*1,46*15,width, height, 46*2);
+    //menu->setSliderPosition(0.0f);
+
 }
 
 void initBoardUI(UI* board){
@@ -37,7 +41,7 @@ void initBoardUI(UI* board){
 
 void drawUI( SDL_Renderer* RENDERER,UI* ui){
     for(int i = 0 ; i < ui->components.size(); i++){
-        if(ui->components[i].clicked > 0){
+        if(ui->last_selected_component == i){
             SDL_SetRenderDrawColor(RENDERER, 104, 4, 21, SDL_ALPHA_OPAQUE);
         }
         else{
@@ -60,7 +64,12 @@ void drawAspectRatioGrid(int xaspect, int yaspect,Core* DEVICE){
 }
 
 const int aspect_tile_size = 46;
-
+string getProbability(UI* menu){
+    stringstream ss;
+    ss.precision(2);
+    ss << "Probability: " << menu->getSliderPosition();
+    return ss.str();
+}
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core Core;
@@ -70,19 +79,32 @@ int main(int argc, const char * argv[]) {
     UI board_grid(0,0,aspect_tile_size*9,aspect_tile_size*10);
     initGameUI(&board_control);
     initBoardUI(&board_grid);
+    Board model(36);
     Texture text(0,0,60,60);
+    SDL_Color white = {255,255,255};
     text.setFont("fonts/CaviarDreams.ttf", 24);
-    //SDL_Color white = {255,255,255};
-    //char which_tile[100];
+    SDL_Rect debug = {46*4,46*15,40, 30};
     while(!controller.quit){
         controller.pollEvents();
         
+        
         //update board
         board_grid.mouseSelection(&controller);
-        //update UI
+        
+        //update ui
+        if (board_grid.last_selected_component == -1){
+            board_control.setSliderPosition(0.0f);
+        }
+        else{
+            board_control.setSliderPosition(model.bernoulis[board_grid.last_selected_component]);
+        }
+        
         board_control.mouseSelection(&controller);
-        //slidershit
-        board_control.sliderPosition();
+
+        
+        //update model
+        model.updateBernouli(board_grid.last_selected_component, board_control.getSliderPosition());
+        
         //timah to dra
         SDL_SetRenderDrawColor(Core.RENDERER, 32, 98, 187, 12);
         SDL_RenderFillRect(Core.RENDERER, &board_control.Base);
@@ -91,13 +113,14 @@ int main(int argc, const char * argv[]) {
         SDL_SetRenderDrawColor(Core.RENDERER, 0, 130, 23, 30);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.Base);
         
-        
-        
+        SDL_RenderFillRect(Core.RENDERER, &debug);
         
         drawUI(Core.RENDERER, &board_grid);
         //draw 9:16 grid
         drawAspectRatioGrid(9,16,&Core);
-        //text.render(Core.RENDERER);
+        //slidershit
+        text.textureFromString(Core.RENDERER, white, getProbability(&board_control));
+        text.render(Core.RENDERER);
 
         SDL_RenderPresent(Core.RENDERER);
 

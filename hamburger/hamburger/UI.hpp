@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 #include "Controller.hpp"
 #include <SDL2/SDL.h>
 
@@ -34,6 +35,7 @@ private:
     
 public:
     SDL_Rect Base;
+    int last_selected_component;
     float slider_position;
     vector<Component> components;
     //figure out which component was clicked on
@@ -48,9 +50,10 @@ public:
     SDL_Point getCenterOfUI();
     SDL_Point getCenterOfComponent(int i, int j);
     Component slider;
-    void createSlider(int width, int height, int range);
+    void createSlider(int x, int y,int width, int height, int range);
     void updateSlider(SDL_Point mousePosition);
-    void sliderPosition();
+    float getSliderPosition();
+    void setSliderPosition(float pos);
     
     
 };

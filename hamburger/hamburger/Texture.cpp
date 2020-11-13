@@ -52,7 +52,7 @@ void Texture::setFont(std::string path,int size){
 
 }
 
-void Texture::textureFromString(std::string input, SDL_Color color, SDL_Renderer* Render){
+void Texture::textureFromString(SDL_Renderer* Render,SDL_Color color,std::string input){
     //this frees the mTexture not the font
     free();
     SDL_Surface* temp = TTF_RenderText_Blended(font, input.c_str(), color);

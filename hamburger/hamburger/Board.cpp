@@ -31,16 +31,24 @@ void Board::updateBernouli(int i, float p){
     if (p >1 || p < 0){
         printf("INCORRECT INPUT FOR BERNOULI RV\n");
     }
-    bernoulis[i] = p;
+    if(i > bernoulis.size() || i < 0){
+        //printf("INCORRECT INPUT FOR BERNOULI INDEX\n");
+    }
+    else{
+        bernoulis[i] = p;
+    }
 }
 
+
 void Board::printBoard(){
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 7; j++){
-            //cout << random_variables
-            printRandomVariable(i, j);
-        }
+    
+    for (int i = 0;  i< bernoulis.size() ; i++){
+        //cout << random_variables
+        printf("X:%d, P:%.2f", i,bernoulis[i]);
+
     }
+    printf("\n");
+    
 }
 
 bool Board::addPMF(int i, int j, float X, float P){

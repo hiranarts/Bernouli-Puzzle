@@ -14,26 +14,39 @@ UI::UI(int x, int y, int width, int height){
     Base.y = y;
     Base.w = width;
     Base.h = height;
+    //start off unselected
+    last_selected_component = -1;
 }
 
-void UI::createSlider(int width, int height, int range){
+void UI::setSliderPosition(float pos){
+    if(pos < 0 || pos > 1){
+        printf("ERROR position is 0,1 inclusive\n");
+    }
+    else{
+        int x = floor(pos * (slider_max_range - slider_min_range) + slider_min_range - slider.area.w/2);
+        slider.area.x = x;
+    }
+}
+void UI::createSlider(int x, int y,int width, int height, int range){
+    //TODO: need to add arguments for where the slider is going to be places
     
-    SDL_Point center = getCenterOfUI();
-    SDL_Rect temp = {center.x, center.y, width, height};
+    SDL_Rect temp = {x + width/2, y, width, height};
     slider.area = temp;
     slider.clicked = 0;
     slider.hover = 0;
-    slider_position = 0.0f;
+    //slider_position = 0.0f;
     
-    slider_max_range = slider.area.x + range;
-    slider_min_range = slider.area.x;
+    slider_max_range = x + width/2 + range;
+    slider_min_range = x + width/2;
     
 }
 
 //slider location is going to be used for other functions
-void UI::sliderPosition(){
-    printf("slider pos %d\n", ((slider.area.x+slider.area.w/2) - slider_min_range));
+float UI::getSliderPosition(){
+    float pos = (0.0f + (slider.area.x+slider.area.w/2) - slider_min_range)/(slider_max_range - slider_min_range);
+    return pos;
 }
+
 void UI::updateSlider(SDL_Point mPosition){
     //first do bound detection
     if(mPosition.x < slider_min_range){
@@ -55,6 +68,7 @@ void UI::mouseSelection(Controller* controller){
         for (int i = 0; i < components.size();i++){
             if(SDL_PointInRect(&controller->mPosition, &components[i].area)){
                 components[i].clicked++;
+                last_selected_component = i;
             }
             else{
                 //reset it to 0
