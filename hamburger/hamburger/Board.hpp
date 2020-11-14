@@ -19,6 +19,7 @@ private:
     
 public:
     Board();
+    int size;
     Board(int no_pieces);
     vector<float> bernoulis;
     vector<float> vals;

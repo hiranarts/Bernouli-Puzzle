@@ -99,7 +99,92 @@ void drawAspectRatioGrid(int xaspect, int yaspect,Core* DEVICE){
     }
 }
 
+bool puzzle1(Board* model){
+    
+    printf("%d\n", model->size);
+    int rvs = 1;
+    
+    float probs[rvs];
+    float vals[rvs];
+    bool found[rvs];
+    //initialize solution
+    for (int i = 0; i < rvs; i ++){
+        found[i] = false;
+    }
+    if(model->size != rvs){
+        return false;
+    }
+    //actual puzzle
+    probs[0] = 0.5f;
+    vals[0] = 1;
+    
+    //O(M + R) time, this could be cut down further but ill do that later
+    for (int i = 0; i < model->bernoulis.size(); i++){
+        for(int j = 0; j < rvs; j++){
+            if(found[j]==false && probs[j] == model->bernoulis[i] && vals[j] == model->vals[i] ){
+                found[j] = true;
+            }
+        }
+    }
+    
+    
+    for(int i = 0; i < rvs; i++){
+        if (found[i] == false){
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool puzzle2(Board* model){
+    int rvs = 2;
+    
+    float probs[rvs];
+    float vals[rvs];
+    bool found[rvs];
+    //initialize solution
+    for (int i = 0; i < rvs; i ++){
+        found[i] = false;
+    }
+    if(model->size != rvs){
+        return false;
+    }
+    //actual puzzle
+    probs[0] = 0.5f;
+    vals[0] = 1;
+    probs[1] = 0.5f;
+    vals[1] = 1;
+    
+    printf("\ninput size %d\n\n" , model->size);
+    printf("input prob0 %f\n" , model->bernoulis[0]);
+    printf("input val0 %f\n\n" , model->vals[0]);
+    printf("input prob1 %f\n" , model->bernoulis[1]);
+    printf("input val0 %f\n" , model->vals[1]);
+    
+    //O(M + R) time, this could be cut down further but ill do that later
+    for (int i = 0; i < model->bernoulis.size(); i++){
+        for(int j = 0; j < rvs; j++){
+            if(found[j] == false && probs[j] == model->bernoulis[i] && vals[j] == model->vals[i] ){
+                found[j] = true;
+                break;
+            }
+        }
+    }
+    
+    
+    for(int i = 0; i < rvs; i++){
+        if (found[i] == false){
+            return false;
+        }
+    }
+    
+    return true;
+    
+}
+
 const int aspect_tile_size = 46;
+
 string getProbabilityString(UI* menu){
     stringstream ss;
     ss.precision(2);
@@ -148,7 +233,10 @@ string getTotalExpString(Board* model){
     
     return ss.str();
 }
-
+//round the floating point input to 2 decimal places
+float rounding(float input){
+    return round(input * 100)/100;
+}
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core Core;
@@ -169,7 +257,8 @@ int main(int argc, const char * argv[]) {
     Texture exp(0,46*11, 60, 60);
     Texture exp2(0,46*10, 60, 60);
 
-
+    bool win = false;
+    
     while(!controller.quit){
         controller.pollEvents();
         
@@ -196,9 +285,17 @@ int main(int argc, const char * argv[]) {
         if(board_control.components[1].clicked > 0){
             model.deactivate(board_grid.last_selected_component);
         }
+        //submit
+        if(board_control.components[4].clicked > 0){
+            win = puzzle2(&model);
+            if(win){
+                printf("Congratualtions! You completed the puzzle!\n");
+                controller.quit = true;
+            }
+        }
         
         //update model
-        model.updateBernouli(board_grid.last_selected_component, board_control.getSliderPosition(),board_grid.getSliderPosition());
+        model.updateBernouli(board_grid.last_selected_component, rounding(board_control.getSliderPosition()),rounding(board_grid.getSliderPosition()));
         
         //timah to dra
         SDL_SetRenderDrawColor(Core.RENDERER, 32, 98, 187, 12);

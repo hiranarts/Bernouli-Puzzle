@@ -23,14 +23,22 @@ Board::Board(int no_pieces){
         vals.push_back(0.0f);
         active.push_back(false);
     }
+    size = 0;
     
 }
 
 void Board::deactivate(int i){
-    active[i] = false;
+    if (active[i] != false){
+        active[i] = false;
+        size--;
+    }
 }
 void Board::activate(int i){
-    active[i] = true;
+    if(active[i] != true){
+        active[i] = true;
+        size++;
+    }
+    
 }
 void Board::printRandomVariable(int i , int j){
     printf("X:%d, P:%.2f", 0,random_variables[i][j].at(0));
