@@ -40,6 +40,7 @@ Texture::~Texture()
 
 void Texture::setFont(std::string path,int size){
     //free font
+    printf("How many?\n");
     TTF_CloseFont(font);
     font = NULL;
     
@@ -51,10 +52,12 @@ void Texture::setFont(std::string path,int size){
 
 }
 
-void Texture::textureFromString(SDL_Renderer* Render,SDL_Color color,std::string input){
+
+
+void Texture::textureFromString(SDL_Renderer* Render,SDL_Color color,std::string input,TTF_Font* gFont){
     //this frees the mTexture not the font
     free();
-    SDL_Surface* temp = TTF_RenderText_Blended(font, input.c_str(), color);
+    SDL_Surface* temp = TTF_RenderText_Blended(gFont, input.c_str(), color);
     if (temp == NULL){
         printf("Text surface could not be rendered!\n");
     }

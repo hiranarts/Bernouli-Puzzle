@@ -14,14 +14,27 @@
 #include "Board.hpp"
 #include "UI.hpp"
 #include "Texture.hpp"
+#include "SDL2_ttf/SDL_ttf.h"
+
 
 void initGameUI(UI* menu){
     
     int width = 40;
     int height = 30;
     //menu->addComponent(center.x-(width/2), center.y-(height/2), width, height);
-    menu->createSlider(46*1,46*15,width, height, 46*2);
+    menu->createSlider(46*6,46*12,width, height, 46*2);
     menu->setSliderPosition(0.0f);
+    
+    //create button
+    menu->addComponent(46*0, 46*15, 46, 46);
+    //delete button
+    menu->addComponent(46*1, 46*15, 46, 46);
+    //join
+    menu->addComponent(46*2, 46*15, 46, 46);
+    //disjoin
+    menu->addComponent(46*3, 46*15, 46, 46);
+    //submit
+    menu->addComponent(46*7, 46*15, 46, 46);
 
 }
 
@@ -37,20 +50,41 @@ void initBoardUI(UI* board){
         }
     }
     //board->addComponent(center.x - width/2, center.y - height/2, width , height);
-    board->createSlider(46*1, 46*14, 40, 30, 46*2);
+    board->createSlider(46*6, 46*13, 40, 30, 46*2);
     board->setSliderPosition(0.0f);
 }
 
-void drawUI( SDL_Renderer* RENDERER,UI* ui){
+void drawUI( SDL_Renderer* RENDERER,UI* ui,Board* board){
     for(int i = 0 ; i < ui->components.size(); i++){
         if(ui->last_selected_component == i){
             SDL_SetRenderDrawColor(RENDERER, 104, 4, 21, SDL_ALPHA_OPAQUE);
+        }
+        else if(board->active[i] == true){
+            SDL_SetRenderDrawColor(RENDERER, 255,105,180,SDL_ALPHA_OPAQUE);
         }
         else{
             SDL_SetRenderDrawColor(RENDERER, 12, 4, 102, SDL_ALPHA_OPAQUE);
         }
         SDL_RenderFillRect(RENDERER, &ui->components[i].area);
     }
+}
+
+void drawButtons(SDL_Renderer* RENDERER, UI* control){
+    //first button is create
+    SDL_SetRenderDrawColor(RENDERER, 0, 233, 56, 255);
+    SDL_RenderFillRect(RENDERER, &control->components[0].area);
+    //second button is destroy
+    SDL_SetRenderDrawColor(RENDERER, 233, 56, 0, 255);
+    SDL_RenderFillRect(RENDERER, &control->components[1].area);
+    //third is join
+    SDL_SetRenderDrawColor(RENDERER, 148, 0, 211, 255);
+    SDL_RenderFillRect(RENDERER, &control->components[2].area);
+    //fourth is disjoin
+    SDL_SetRenderDrawColor(RENDERER, 216, 191, 216, 255);
+    SDL_RenderFillRect(RENDERER, &control->components[3].area);
+    //fifth is submit
+    SDL_SetRenderDrawColor(RENDERER, 212, 175, 55, 255);
+    SDL_RenderFillRect(RENDERER, &control->components[4].area);
 }
 
 void drawAspectRatioGrid(int xaspect, int yaspect,Core* DEVICE){
@@ -79,25 +113,65 @@ string getValueString(UI* menu){
     ss << "Value: " << menu->getSliderPosition();
     return ss.str();
 }
+
+string getExpectationString(float val, float p){
+    stringstream ss;
+    ss.precision(2);
+    ss << "E[X] ~ " << val*p;
+    return ss.str();
+}
+
+string getTotalExpString(Board* model){
+    stringstream ss;
+    ss.precision(2);
+    
+    ss << "E'[";
+    float total = 0;
+    int count = 0;
+    for (int i = 0; i < model->bernoulis.size(); i++){
+        if(model->active[i]){
+            if (count == 0){
+                ss << "X_" << i;
+                total += model->bernoulis[i] * model->vals[i];
+                count++;
+            }
+            else{
+                ss << "+" << "X_" << i;
+                total += model->bernoulis[i] * model->vals[i];
+                count++;
+            }
+            
+        }
+    }
+    
+    ss << "] ~ " << total;
+    
+    return ss.str();
+}
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core Core;
     Controller controller;
-    Board board;
+    Board model(36);
     UI board_control(0,aspect_tile_size*10,(aspect_tile_size*9),(aspect_tile_size*6));
     UI board_grid(0,0,aspect_tile_size*9,aspect_tile_size*10);
+    
     initGameUI(&board_control);
     initBoardUI(&board_grid);
-    Board model(36);
-    Texture text(0,0,60,60);
-    Texture val(0,46,60,60);
-    SDL_Color white = {255,255,255};
-    text.setFont("fonts/CaviarDreams.ttf", 24);
-    val.setFont("fonts/CaviarDreams.ttf", 24);
     
+    TTF_Font* gFont = TTF_OpenFont("fonts/CaviarDreams.ttf", 24);
+
+    SDL_Color white = {255,255,255};
+    
+    Texture text(0,46*12,60,60);
+    Texture val(0,46*13,60,60);
+    Texture exp(0,46*11, 60, 60);
+    Texture exp2(0,46*10, 60, 60);
+
+
     while(!controller.quit){
         controller.pollEvents();
-        
         
         //board update controller
         board_grid.mouseSelection(&controller);
@@ -111,11 +185,18 @@ int main(int argc, const char * argv[]) {
         if(board_control.slider.clicked > 0){
             board_control.updateSlider(controller.mPosition);
         }
-        
         if(board_grid.slider.clicked > 0){
             board_grid.updateSlider(controller.mPosition);
         }
-
+        //if active is clicked
+        if(board_control.components[0].clicked > 0){
+            model.activate(board_grid.last_selected_component);
+        }
+        //destroy 
+        if(board_control.components[1].clicked > 0){
+            model.deactivate(board_grid.last_selected_component);
+        }
+        
         //update model
         model.updateBernouli(board_grid.last_selected_component, board_control.getSliderPosition(),board_grid.getSliderPosition());
         
@@ -129,20 +210,26 @@ int main(int argc, const char * argv[]) {
         SDL_SetRenderDrawColor(Core.RENDERER, 30, 232, 87, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.slider.area);
         
-        
+        //draw buttons
+        drawButtons(Core.RENDERER, &board_control);
         
         SDL_SetRenderDrawColor(Core.RENDERER, 0, 130, 23, 30);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.Base);
         
-        
-        drawUI(Core.RENDERER, &board_grid);
+        drawUI(Core.RENDERER, &board_grid, &model);
         //draw 9:16 grid
         drawAspectRatioGrid(9,16,&Core);
         //slidershit
-        text.textureFromString(Core.RENDERER, white, getProbabilityString(&board_control));
-        val.textureFromString(Core.RENDERER, white, getValueString(&board_grid));
+        text.textureFromString(Core.RENDERER, white, getProbabilityString(&board_control),gFont);
+        val.textureFromString(Core.RENDERER, white, getValueString(&board_grid),gFont);
+        exp.textureFromString(Core.RENDERER, white, getExpectationString(model.vals[board_grid.last_selected_component], model.bernoulis[board_grid.last_selected_component]),gFont);
+        exp2.textureFromString(Core.RENDERER, white, getTotalExpString(&model),gFont);
+        
         text.render(Core.RENDERER);
         val.render(Core.RENDERER);
+        exp.render(Core.RENDERER);
+        exp2.render(Core.RENDERER);
+
 
         SDL_RenderPresent(Core.RENDERER);
 

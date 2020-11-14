@@ -22,11 +22,16 @@ public:
     Board(int no_pieces);
     vector<float> bernoulis;
     vector<float> vals;
+    vector<bool> active;
+    //vector<int> joined;
+    void activate(int i);
+    void deactivate(int i);
     void printBoard();
     void updateBernouli(int i, float p,float val);
     void printRandomVariable(int i , int j);
     bool addPMF(int i, int j, float X, float P);
     bool subtractPMF(int i, int j, float X, float P);
+    
     
 };
 

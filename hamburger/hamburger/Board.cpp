@@ -21,9 +21,17 @@ Board::Board(int no_pieces){
     for (int i = 0; i < no_pieces; i++){
         bernoulis.push_back(0.0f);
         vals.push_back(0.0f);
+        active.push_back(false);
     }
+    
 }
 
+void Board::deactivate(int i){
+    active[i] = false;
+}
+void Board::activate(int i){
+    active[i] = true;
+}
 void Board::printRandomVariable(int i , int j){
     printf("X:%d, P:%.2f", 0,random_variables[i][j].at(0));
 }
