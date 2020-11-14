@@ -16,6 +16,8 @@
 #include "Texture.hpp"
 #include "SDL2_ttf/SDL_ttf.h"
 
+const double FRAME_RATE = 15.0;
+const double FRAME_DELAY = 1000/FRAME_RATE;
 
 void initGameUI(UI* menu){
     
@@ -238,6 +240,10 @@ float rounding(float input){
     return round(input * 100)/100;
 }
 int main(int argc, const char * argv[]) {
+    
+    int frame_time;
+    int frame_start;
+        
     // insert code here...
     Core Core;
     Controller controller;
@@ -260,6 +266,8 @@ int main(int argc, const char * argv[]) {
     bool win = false;
     
     while(!controller.quit){
+        frame_start = SDL_GetTicks();
+
         controller.pollEvents();
         
         //board update controller
@@ -331,7 +339,10 @@ int main(int argc, const char * argv[]) {
         SDL_RenderPresent(Core.RENDERER);
 
 
-        
+        frame_time = SDL_GetTicks() - frame_start;
+        if(FRAME_DELAY>frame_time){
+            SDL_Delay(FRAME_DELAY-frame_time);
+        }
     }
      
     return 0;
