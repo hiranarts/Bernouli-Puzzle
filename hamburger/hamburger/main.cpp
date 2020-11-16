@@ -16,7 +16,7 @@
 #include "Texture.hpp"
 #include "SDL2_ttf/SDL_ttf.h"
 
-const double FRAME_RATE = 15.0;
+const double FRAME_RATE = 60.0;
 const double FRAME_DELAY = 1000/FRAME_RATE;
 
 void initGameUI(UI* menu){
@@ -43,12 +43,12 @@ void initGameUI(UI* menu){
 void initBoardUI(UI* board){
     SDL_Point center = board->getCenterOfUI();
     //TODO: I want to make it so that its adding each tile as its own component
-    int tile_size = 60;
-    int width = tile_size * 6;
-    int height = tile_size * 6;
-    for (int i = 0; i < 6; i++){
-        for (int j = 0; j <6; j++ ){
-            board->addComponent((center.x - width/2 + j*tile_size), (center.y - height/2 + i*tile_size), 50, 50);
+    int tile_size = 120;
+    int width = tile_size * 3;
+    int height = tile_size * 3;
+    for (int i = 0; i < 3; i++){
+        for (int j = 0; j < 3; j++ ){
+            board->addComponent((center.x - width/2 + j*tile_size), (center.y - height/2 + i*tile_size), 120, 120);
         }
     }
     //board->addComponent(center.x - width/2, center.y - height/2, width , height);
@@ -100,6 +100,7 @@ void drawAspectRatioGrid(int xaspect, int yaspect,Core* DEVICE){
         SDL_RenderDrawLine(DEVICE->RENDERER, 0, j*(DEVICE->height/yaspect), DEVICE->width, j*(DEVICE->height/yaspect));
     }
 }
+
 
 bool puzzle1(Board* model){
     
@@ -239,11 +240,86 @@ string getTotalExpString(Board* model){
 float rounding(float input){
     return round(input * 100)/100;
 }
+
+SDL_Texture* loadTexture( SDL_Renderer* RENDERER, std::string path )
+{
+    //The final texture
+    SDL_Texture* newTexture = NULL;
+
+    //Load image at specified path
+    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
+    if( loadedSurface == NULL )
+    {
+        printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
+    }
+    else
+    {
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface( RENDERER, loadedSurface );
+        if( newTexture == NULL )
+        {
+            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+        }
+
+        //Get rid of old loaded surface
+        SDL_FreeSurface( loadedSurface );
+    }
+
+    return newTexture;
+}
+
+vector<SDL_Rect> init_borders(){
+    int top_y = 10;
+    int bottom_y = 15;
+    int left_x = 0;
+    int right_x = 46*8;
+    
+    vector<SDL_Rect> temp;
+    //col value
+    for(int i = 0; i < 9; i++){
+        SDL_Rect top = {i*46,top_y*46,46,46};
+        SDL_Rect bot = {i*46,bottom_y*46, 46,46};
+        
+        temp.push_back(top);
+        temp.push_back(bot);
+    }
+    
+    //row val
+    for(int i = top_y +  1; i < bottom_y ;i++){
+        SDL_Rect left = {left_x,i*46, 46,46};
+        SDL_Rect right = {right_x, i*46, 46, 46};
+        
+        temp.push_back(left);
+        temp.push_back(right);
+        
+    }
+    
+    return temp;
+}
+
+void drawborder(SDL_Renderer* RENDERER, SDL_Texture* texture, vector<SDL_Rect> border_loc){
+    for(int i = 0; i < border_loc.size(); i++){
+        SDL_RenderCopy(RENDERER, texture, NULL, &border_loc[i]);
+    }
+}
+
 int main(int argc, const char * argv[]) {
     
     int frame_time;
     int frame_start;
         
+    //texture loading
+    vector<SDL_Rect> animation;
+    
+    for (int i = 0; i < 5; i++){
+        SDL_Rect temp = {i*46,0,46,46};
+        animation.push_back(temp);
+    }
+    
+    SDL_Rect filled_tiled = {5*46,0,46,46};
+    
+    vector<SDL_Rect> border_rects = init_borders();
+    
     // insert code here...
     Core Core;
     Controller controller;
@@ -262,8 +338,15 @@ int main(int argc, const char * argv[]) {
     Texture val(0,46*13,60,60);
     Texture exp(0,46*11, 60, 60);
     Texture exp2(0,46*10, 60, 60);
+    
+    //load large texture
+    SDL_Texture* TILE_SPRITE_SHEET = loadTexture(Core.RENDERER, "tiles.bmp");
+    SDL_Texture* border_texture = loadTexture(Core.RENDERER, "border_texture.bmp");
+    SDL_Texture* slider = loadTexture(Core.RENDERER, "slider.bmp");
 
     bool win = false;
+    
+    int animation_test_count = 0;
     
     while(!controller.quit){
         frame_start = SDL_GetTicks();
@@ -335,9 +418,32 @@ int main(int argc, const char * argv[]) {
         exp.render(Core.RENDERER);
         exp2.render(Core.RENDERER);
 
-
+        //render texture on blocks
+        //if the animation has started
+        if(board_grid.components[0].clicked > 0){
+            animation_test_count++;
+        }
+        if(animation_test_count > 0){
+            if(animation_test_count > 20){
+                animation_test_count = 0;
+            }
+            else{
+                animation_test_count++;
+            }
+        }
+        SDL_RenderCopy(Core.RENDERER, TILE_SPRITE_SHEET, &animation[animation_test_count%5], &board_grid.components[0].area);
+        
+        if(model.active[0] == true){
+            SDL_RenderCopy(Core.RENDERER, border_texture, &filled_tiled, &board_grid.components[0].area);
+        }
+        
+        drawborder(Core.RENDERER, border_texture, border_rects);
+        
+        SDL_RenderCopy(Core.RENDERER, slider, NULL, &board_grid.slider.area);
+        
         SDL_RenderPresent(Core.RENDERER);
-
+        
+        SDL_RenderClear(Core.RENDERER);
 
         frame_time = SDL_GetTicks() - frame_start;
         if(FRAME_DELAY>frame_time){
