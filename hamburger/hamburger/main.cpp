@@ -16,7 +16,7 @@
 #include "Texture.hpp"
 #include "SDL2_ttf/SDL_ttf.h"
 
-const double FRAME_RATE = 60.0;
+const double FRAME_RATE = 15.0;
 const double FRAME_DELAY = 1000/FRAME_RATE;
 
 void initGameUI(UI* menu){
@@ -24,7 +24,7 @@ void initGameUI(UI* menu){
     int width = 40;
     int height = 30;
     //menu->addComponent(center.x-(width/2), center.y-(height/2), width, height);
-    menu->createSlider(46*6,46*12,width, height, 46*2);
+    menu->createSlider(46*4,(int)46*13.25,width, height, 46*2);
     menu->setSliderPosition(0.0f);
     
     //create button
@@ -43,16 +43,18 @@ void initGameUI(UI* menu){
 void initBoardUI(UI* board){
     SDL_Point center = board->getCenterOfUI();
     //TODO: I want to make it so that its adding each tile as its own component
-    int tile_size = 120;
+    int tile_size = 100;
+    
+    int offset = 15;
     int width = tile_size * 3;
     int height = tile_size * 3;
     for (int i = 0; i < 3; i++){
         for (int j = 0; j < 3; j++ ){
-            board->addComponent((center.x - width/2 + j*tile_size), (center.y - height/2 + i*tile_size), 120, 120);
+            board->addComponent((center.x - width/2 + j*tile_size) + offset, (center.y - height/2 + i*tile_size), 80, 80);
         }
     }
     //board->addComponent(center.x - width/2, center.y - height/2, width , height);
-    board->createSlider(46*6, 46*13, 40, 30, 46*2);
+    board->createSlider(46*4, (int)46*14.25, 40, 30, 46*2);
     board->setSliderPosition(0.0f);
 }
 
@@ -197,8 +199,8 @@ string getProbabilityString(UI* menu){
 
 string getValueString(UI* menu){
     stringstream ss;
-    ss.precision(2);
-    ss << "Value: " << menu->getSliderPosition();
+    ss.precision(3);
+    ss << "Value: " << floor(menu->getSliderPosition()*100);
     return ss.str();
 }
 
@@ -274,18 +276,20 @@ vector<SDL_Rect> init_borders(){
     int left_x = 0;
     int right_x = 46*8;
     
+    int tile_size = 46;
     vector<SDL_Rect> temp;
     //col value
     for(int i = 0; i < 9; i++){
-        SDL_Rect top = {i*46,top_y*46,46,46};
-        SDL_Rect bot = {i*46,bottom_y*46, 46,46};
-        
+        SDL_Rect top = {i*tile_size,top_y*tile_size,tile_size,tile_size};
+        SDL_Rect bot = {i*tile_size,bottom_y*tile_size, tile_size,tile_size};
+        SDL_Rect upper = {i*46, 0 , 46,46};
         temp.push_back(top);
         temp.push_back(bot);
+        temp.push_back(upper);
     }
     
     //row val
-    for(int i = top_y +  1; i < bottom_y ;i++){
+    for(int i = 1; i < bottom_y ;i++){
         SDL_Rect left = {left_x,i*46, 46,46};
         SDL_Rect right = {right_x, i*46, 46, 46};
         
@@ -317,6 +321,9 @@ int main(int argc, const char * argv[]) {
     }
     
     SDL_Rect filled_tiled = {5*46,0,46,46};
+    SDL_Rect inner_control_rect = {46,46*11, 1, 1};
+    SDL_Rect slider_slot_rect = {46*4,(int)(46*14.5),46*3,10};
+    SDL_Rect slider_slot_rect2 = {46*4 , (int)(46*13.5),46*3, 10};
     
     vector<SDL_Rect> border_rects = init_borders();
     
@@ -330,23 +337,27 @@ int main(int argc, const char * argv[]) {
     initGameUI(&board_control);
     initBoardUI(&board_grid);
     
-    TTF_Font* gFont = TTF_OpenFont("fonts/CaviarDreams.ttf", 24);
+    TTF_Font* gFont = TTF_OpenFont("fonts/CaviarDreams.ttf", 20);
 
     SDL_Color white = {255,255,255};
     
-    Texture text(0,46*12,60,60);
-    Texture val(0,46*13,60,60);
-    Texture exp(0,46*11, 60, 60);
-    Texture exp2(0,46*10, 60, 60);
+    Texture val(46,46*14.25,60,60);
+    Texture text(46,46*13.25,60,60);
+    Texture exp(46,46*12.25, 60, 60);
+    Texture exp2(46,46*11.25, 60, 60);
     
     //load large texture
     SDL_Texture* TILE_SPRITE_SHEET = loadTexture(Core.RENDERER, "tiles.bmp");
     SDL_Texture* border_texture = loadTexture(Core.RENDERER, "border_texture.bmp");
-    SDL_Texture* slider = loadTexture(Core.RENDERER, "slider.bmp");
-
+    SDL_Texture* slider_texture = loadTexture(Core.RENDERER, "slider.bmp");
+    SDL_Texture* inner_control_texture = loadTexture(Core.RENDERER, "inside_control.bmp");
+    SDL_Texture* slider_slot_texture = loadTexture(Core.RENDERER, "slider_slot.bmp");
+    
+    SDL_QueryTexture(inner_control_texture, NULL, NULL, &inner_control_rect.w, &inner_control_rect.h);
+    
     bool win = false;
     
-    int animation_test_count = 0;
+    int animation_test_count[9] = {0};
     
     while(!controller.quit){
         frame_start = SDL_GetTicks();
@@ -388,18 +399,20 @@ int main(int argc, const char * argv[]) {
         //update model
         model.updateBernouli(board_grid.last_selected_component, rounding(board_control.getSliderPosition()),rounding(board_grid.getSliderPosition()));
         
-        //timah to dra
-        SDL_SetRenderDrawColor(Core.RENDERER, 32, 98, 187, 12);
-        SDL_RenderFillRect(Core.RENDERER, &board_control.Base);
         
+        //timah to dra
+        
+        //render inner control
+        SDL_RenderCopy(Core.RENDERER, inner_control_texture, NULL, &inner_control_rect);
+        //draw border
+        drawborder(Core.RENDERER, border_texture, border_rects);
+        
+
         //draw sliders
         SDL_SetRenderDrawColor(Core.RENDERER, 254, 232, 87, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(Core.RENDERER, &board_control.slider.area);
         SDL_SetRenderDrawColor(Core.RENDERER, 30, 232, 87, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.slider.area);
-        
-        //draw buttons
-        drawButtons(Core.RENDERER, &board_control);
         
         SDL_SetRenderDrawColor(Core.RENDERER, 0, 130, 23, 30);
         SDL_RenderFillRect(Core.RENDERER, &board_grid.Base);
@@ -420,29 +433,42 @@ int main(int argc, const char * argv[]) {
 
         //render texture on blocks
         //if the animation has started
-        if(board_grid.components[0].clicked > 0){
-            animation_test_count++;
+        for(int i = 0; i < board_grid.components.size();i++){
+            if(board_grid.components[i].clicked > 0){
+                animation_test_count[i]++;
+            }
+            if(animation_test_count[i] > 0){
+                if(animation_test_count[i] > 20){
+                    animation_test_count[i] = 0;
+                }
+                else{
+                    animation_test_count[i]++;
+                }
+            }
         }
-        if(animation_test_count > 0){
-            if(animation_test_count > 20){
-                animation_test_count = 0;
+        for (int i = 0; i < board_grid.components.size(); i++){
+            
+            if(model.active[i] == true){
+                SDL_RenderCopy(Core.RENDERER, TILE_SPRITE_SHEET, &filled_tiled, &board_grid.components[i].area);
             }
             else{
-                animation_test_count++;
+                SDL_RenderCopy(Core.RENDERER, TILE_SPRITE_SHEET, &animation[animation_test_count[i]%5], &board_grid.components[i].area);
             }
-        }
-        SDL_RenderCopy(Core.RENDERER, TILE_SPRITE_SHEET, &animation[animation_test_count%5], &board_grid.components[0].area);
-        
-        if(model.active[0] == true){
-            SDL_RenderCopy(Core.RENDERER, border_texture, &filled_tiled, &board_grid.components[0].area);
+
         }
         
-        drawborder(Core.RENDERER, border_texture, border_rects);
         
-        SDL_RenderCopy(Core.RENDERER, slider, NULL, &board_grid.slider.area);
+        //draw buttons
+        drawButtons(Core.RENDERER, &board_control);
+        
+
+        
+        SDL_RenderCopy(Core.RENDERER, slider_texture, NULL, &board_grid.slider.area);
+        SDL_RenderCopy(Core.RENDERER, slider_texture, NULL, &board_control.slider.area);
+        SDL_RenderCopy(Core.RENDERER, slider_slot_texture , NULL , &slider_slot_rect);
+        SDL_RenderCopy(Core.RENDERER, slider_slot_texture, NULL, &slider_slot_rect2);
         
         SDL_RenderPresent(Core.RENDERER);
-        
         SDL_RenderClear(Core.RENDERER);
 
         frame_time = SDL_GetTicks() - frame_start;
