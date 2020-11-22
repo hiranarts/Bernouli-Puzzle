@@ -60,7 +60,45 @@ void setGlobalVariables(){
     
 }
 
- 
+
+
+void setFont(TTF_Font* font, std::string path, int size){
+    font = TTF_OpenFont(path.c_str(), size);
+    if(font == NULL){
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+    }
+}
+
+
+void createTextureFromText(SDL_Renderer* r, SDL_Texture* texture, TTF_Font* font, std::string text){
+    
+    SDL_Color white = {255,255,255,255};
+    SDL_Color black = {0, 0 ,0 , 255};
+    
+    //Free texture if it exists
+    if( texture != NULL )
+    {
+        SDL_DestroyTexture(texture);
+        texture = NULL;
+    }
+    
+    SDL_Surface* textSurface = TTF_RenderText_Solid( font, text.c_str(), black);
+       if( textSurface == NULL )
+       {
+           printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
+       }
+       else
+       {
+           //Create texture from surface pixels
+           texture = SDL_CreateTextureFromSurface( r, textSurface );
+           if( texture == NULL )
+           {
+               printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+           }
+           //Get rid of old surface
+           SDL_FreeSurface( textSurface );
+       }
+}
 
 //TODO:
 void end(){
