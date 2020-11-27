@@ -27,6 +27,9 @@ void Controller::pollEvents(SDL_DisplayMode* gMode){
     if(click>0){
         click+=1;
     }
+    if(touch>0){
+        touch+=1;
+    }
     while(SDL_PollEvent(&event)){
         switch (event.type) {
             case SDL_QUIT:
@@ -85,18 +88,16 @@ void Controller::pollEvents(SDL_DisplayMode* gMode){
             case SDL_FINGERMOTION:
                 touchPosition.x = event.tfinger.x * gMode->w;
                 touchPosition.y = event.tfinger.y * gMode->h;
+                break;
             case SDL_FINGERUP:
                 touchPosition.x = event.tfinger.x * gMode->w;
                 touchPosition.y = event.tfinger.y * gMode->h;
                 touch = 0;
+                break;
             default:
                 break;
         }
     }
 }
 
-void Controller::printControl(){
-    printf("mouse %d , %d \n" , mPosition.x , mPosition.y);
-    printf("up frames %d \n" , up);
-    printf("left lick %d \n" , click);
-}
+

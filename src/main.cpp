@@ -2,10 +2,15 @@
 #include "Core.hpp"
 #include "Controller.hpp"
 #include "Menu.hpp"
+#include "Puzzle.hpp"
+
 SDL_Window* gWindow;
 SDL_Renderer* gRenderer;
 SDL_DisplayMode gMode;
 int normal_tile;
+
+const int SCREEN_FPS = 30;
+const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 void drawAspectRatio(){
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
@@ -27,36 +32,50 @@ void drawLevels(Menu* menu){
 
 int main(int argc, char *argv[]){
 				
-    std::cout << "Herro Za WArudo" << std::endl;
     
     SDL_Log("INIT success? : %d", init());
     setGlobalVariables();
     //Set this to set Global Vars
     //setGlobalWindow();
     Controller inputs;
-    Menu menu(gRenderer, &gMode,normal_tile,15);
-    SDL_Rect test = {0,0,30,40};
     
+    //Menu menu(gRenderer, &gMode,normal_tile,15);
+    
+    Puzzle p1;
+    p1.init(&gMode, normal_tile);
+    p1.initFont(normal_tile);
+    
+    int frame_start;
+    int frame_current;
     
     while(!inputs.quit){
-        inputs.pollEvents(&gMode);
-        test.x = inputs.touchPosition.x;
-        test.y = inputs.touchPosition.y;
         
+        //frame start
+        frame_start = SDL_GetTicks();
+        
+        inputs.pollEvents(&gMode);
+    
         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
         SDL_RenderClear( gRenderer );
-        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(gRenderer, &test);
         
-        menu.game_title_text.render(0, 0);
+        p1.gameLoop(&inputs);
+
+        p1.updateText(gRenderer);
+        p1.render(gRenderer);
         
-        drawLevels(&menu);
+        
         //draw aspect ratio
         drawAspectRatio();
         //Update screen
         SDL_RenderPresent( gRenderer );
+        
+        //
+        frame_current = SDL_GetTicks() - frame_start;
+        
+        if(frame_current < SCREEN_TICKS_PER_FRAME){
+            SDL_Delay(SCREEN_TICKS_PER_FRAME - frame_current);
+        }
     }
-     
     //SDL
     end();
     return 0;

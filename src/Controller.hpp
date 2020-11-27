@@ -14,6 +14,12 @@
 
 class Controller{
 private:
+    
+    SDL_Event event;
+public:
+    //variables
+    SDL_Point mPosition;
+    SDL_Point touchPosition;
     int up;
     int down;
     int left;
@@ -21,15 +27,13 @@ private:
     int touch;
     int click;
     
-    SDL_Event event;
-public:
     Controller();
     //update internal values with events
     void pollEvents(SDL_DisplayMode* gMode);
     bool quit;
     void printControl();
-    SDL_Point mPosition;
-    SDL_Point touchPosition;
+    
+    
     
 };
 

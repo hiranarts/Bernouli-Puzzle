@@ -8,23 +8,75 @@
 #include "Board.hpp"
 
 Board::Board(){
-    //initialize each random variable to have a 0 pmf with probability one
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 7; j++){
-            random_variables[i][j].insert(make_pair(0, 1));
-        }
-    }
-}
-
-Board::Board(int no_pieces){
     //initialize all the bernouli rv
-    for (int i = 0; i < no_pieces; i++){
+    for (int i = 0; i < 16; i++){
         bernoulis.push_back(0.0f);
         vals.push_back(0.0f);
         active.push_back(false);
+        SDL_Rect temp;
+        pieces.push_back(temp);
+        //if parent is -1 then that means there are no dependencies. 
+        parents.push_back(-1);
     }
     size = 0;
     
+}
+
+void Board::selectPiece(Controller* controller){
+    bool found = false;
+    if(controller->touch > 0){
+        for (int i = 0; i < pieces.size(); i++){
+            if(SDL_PointInRect(&controller->touchPosition, &pieces[i])){
+                selected_piece = i;
+                found = true;
+                break;
+            }
+        }
+        /* //deselecting piece 
+        if(found == false && controller->touch > 20){
+            selected_piece = -1;
+        }
+         */
+    }
+}
+
+void Board::renderPieces(SDL_Renderer* r){
+    for (int i =0; i < pieces.size(); i++){
+        if(active[i] == true){
+            SDL_SetRenderDrawColor(r, 233, 78, 69, 255);
+        }
+        else{
+            SDL_SetRenderDrawColor(r, 69, 233, 123, 255);
+        }
+        SDL_RenderFillRect(r, &pieces[i]);
+    }
+    if (!(selected_piece < 0)){
+        SDL_SetRenderDrawColor(r, 255, 0 , 123, 255);
+        SDL_RenderFillRect(r, &pieces[selected_piece]);
+    }
+}
+
+void Board::formatPieces(SDL_DisplayMode* Device, int normal_tile){
+    int rows = 4;
+    int cols = 16/rows;
+    int tilesize = 2 * normal_tile;
+    int offset_x = ( Device->w - (tilesize*cols) )/2;
+    int offset_y = 1;
+    //this means the inner tile is half the size of the grid tile
+    float tilesize_ratio = .75;
+    
+    int counter = 0;
+    for (int i = 0; i < rows; i++){
+        for (int j = 0; j < cols; j++){
+
+            SDL_Rect temp = {offset_x + (j*tilesize) + ((tilesize - tilesize*tilesize_ratio)/2), offset_y*normal_tile+(i*tilesize) + ((tilesize - tilesize*tilesize_ratio)/2),
+                tilesize*tilesize_ratio,
+                tilesize*tilesize_ratio};
+                        
+            pieces[counter] = temp;
+            counter++;
+        }
+    }
 }
 
 void Board::deactivate(int i){
@@ -39,9 +91,6 @@ void Board::activate(int i){
         size++;
     }
     
-}
-void Board::printRandomVariable(int i , int j){
-    printf("X:%d, P:%.2f", 0,random_variables[i][j].at(0));
 }
 
 void Board::updateBernouli(int i, float p,float val){
@@ -58,7 +107,6 @@ void Board::updateBernouli(int i, float p,float val){
     }
 }
 
-
 void Board::printBoard(){
     
     for (int i = 0;  i< bernoulis.size() ; i++){
@@ -67,26 +115,16 @@ void Board::printBoard(){
 
     }
     printf("\n");
-    
 }
 
-bool Board::addPMF(int i, int j, float X, float P){
-    if(random_variables[i][j].size() > 9){
-        printf("Cant add any more random variables, too many pmfs\n");
-        return false;
-    }
-    else{
-        //first find if there is any probability left to give
-        float zeroP = random_variables[i][j].at(0);
-        if (zeroP > P){
-            printf("Cant add this variable probability sum will exceed 1\n");
-            return false;
+void Board::updateTotalProbability(){
+    float total_prob = 1;
+    for(int i = 0; i < active.size(); i++){
+        if(active[i] == true){
+            total_prob = total_prob * bernoulis[i];
         }
-        else{
-            random_variables[i][j][0] = P - zeroP;
-            random_variables[i][j][X] = P;
-            return true;
-        }
-        
     }
+    eventProb = total_prob;
 }
+
+

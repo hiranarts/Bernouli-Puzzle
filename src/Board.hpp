@@ -10,28 +10,36 @@
 
 #include <stdio.h>
 #include <vector>
-#include <map>
+#include "SDL.h"
+#include "Controller.hpp"
+
 using namespace std;
 
 class Board {
-private:
-    map<float, float> random_variables[5][7];
     
 public:
+    
     Board();
     int size;
-    Board(int no_pieces);
     vector<float> bernoulis;
     vector<float> vals;
     vector<bool> active;
+    vector<int> parents;
+    vector<SDL_Rect> pieces;
+    
     //vector<int> joined;
     void activate(int i);
     void deactivate(int i);
     void printBoard();
-    void updateBernouli(int i, float p,float val);
-    void printRandomVariable(int i , int j);
-    bool addPMF(int i, int j, float X, float P);
-    bool subtractPMF(int i, int j, float X, float P);
+    void updateBernouli(int i, float p,float val);    
+    void formatPieces(SDL_DisplayMode* Device, int normal_tile);
+    void renderPieces(SDL_Renderer* r);
+    
+    void updateTotalProbability();
+    //state of board
+    float eventProb;
+    int selected_piece;
+    void selectPiece(Controller* controller);
     
     
 };

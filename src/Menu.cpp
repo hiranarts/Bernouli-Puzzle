@@ -32,18 +32,54 @@ Menu::Menu(SDL_Renderer* r, SDL_DisplayMode* Device, int normal_tile, int no_lev
     }
     
     //create Title text texture
-    SDL_Color black ={0,0,0};
-    game_title_text.Render = r;
-    game_title_text.loadFontFromFile("assets/Bebas-Regular.ttf", normal_tile);
-    game_title_text.loadFromRenderedText("Detective Bayes", black);
-
+    //TODO: FIXME WITH UPDATED TEXTURE CLASS
+    
+    TTF_Font *title_font = TTF_OpenFont("assets/Bebas-Regular.ttf", 1.5*normal_tile);
+    game_title_text.createTextureFromString(r, title_font, "Bernouli Puzzle");
+    
+    //center rect;
     game_title_text.location.x = (Device->w - game_title_text.location.w)/2;
     game_title_text.location.y = normal_tile;
     
-    //center rect;
-   
+    //create levels title
+    TTF_Font *subtitle_font = TTF_OpenFont("assets/Bebas-Regular.ttf", normal_tile);
+    level_title_text.createTextureFromString(r, subtitle_font, "LEVELS");
+     
+    //center text
+    level_title_text.location.x = (Device->w - level_title_text.location.w)/2;
+    level_title_text.location.y = 4*normal_tile;
     
     
+    //start menu loop
     
+}
 
+int Menu::selectedLevel(Controller* inputs){
+    //if the users hand is on the screen
+    if (inputs->touch > 0){
+        for(int i = 0; i < levels.size(); i++){
+            if(SDL_PointInRect(&inputs->touchPosition,&levels[i])){
+                return i;
+            }
+        }
+    }
+    //return -1 if the user didnt select anything.
+    return -1;
+}
+
+void Menu::menuLoop(SDL_Renderer* r, Controller *inputs){
+    int selected = selectedLevel(inputs);
+    SDL_SetRenderDrawColor(gRenderer, 123, 32, 122, 255);
+    for (int i = 0; i < levels.size(); i++){
+        SDL_RenderFillRect(r, &levels[i]);
+    }
+    //no level was selected
+    if(!(selected<0)){
+        SDL_SetRenderDrawColor(r, 3, 233, 123, 255);
+        SDL_RenderFillRect(r, &levels[selected]);
+    }
+}
+
+void Menu::render(SDL_Renderer *r){
+    
 }
