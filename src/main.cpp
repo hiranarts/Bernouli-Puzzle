@@ -45,9 +45,28 @@ int main(int argc, char *argv[]){
     p1.init(&gMode, normal_tile);
     p1.initFont(normal_tile);
     
+    /*
+    Board chainCheck;
+    
+    int P = 0;
+    int A = 1;
+    int B = 4;
+    chainCheck.bernoulis[P]=0.5;
+    chainCheck.children[P][1] = B;
+    chainCheck.children[P][3] = A;
+    chainCheck.value[A] = 1;
+    chainCheck.value[B] = 1;
+    chainCheck.bernoulis[A] = .1;
+    chainCheck.bernoulis2[A] = .3;
+    chainCheck.bernoulis[B] = .1;
+    chainCheck.bernoulis2[B] = .5;
+    float inference = chainCheck.getProbChain(P);
+    printf("Prob Chain %f\n", inference);
+    */
+    
     int frame_start;
     int frame_current;
-    
+  
     while(!inputs.quit){
         
         //frame start
@@ -61,11 +80,11 @@ int main(int argc, char *argv[]){
         p1.gameLoop(&inputs);
 
         p1.updateText(gRenderer);
+        
+        
         p1.render(gRenderer);
-        
-        
         //draw aspect ratio
-        drawAspectRatio();
+        //drawAspectRatio();
         //Update screen
         SDL_RenderPresent( gRenderer );
         
@@ -76,6 +95,8 @@ int main(int argc, char *argv[]){
             SDL_Delay(SCREEN_TICKS_PER_FRAME - frame_current);
         }
     }
+     
+     
     //SDL
     end();
     return 0;

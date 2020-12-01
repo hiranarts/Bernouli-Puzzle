@@ -26,7 +26,6 @@ void Slider::update(Controller* inputs){
             moveSlider(inputs->touchPosition.x);
         }
     }
-    printf("Val %f\n", val);
 }
 
 void Slider::moveSlider(int x){
