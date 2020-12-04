@@ -11,8 +11,8 @@ Board::Board(){
     //initialize all the bernouli rv
     for (int i = 0; i < 16; i++){
         bernoulis.push_back(0.0f);
-        vals.push_back(0.0f);
         active.push_back(false);
+        clicked.push_back(0);
         SDL_Rect temp;
         pieces.push_back(temp);
         //if parent is -1 then that means there are no dependencies. 
@@ -26,9 +26,10 @@ Board::Board(){
     size = 0;
     mode = 0;
     
+    
 }
 
-void Board::updateBernouli2(int i, float p, float val){
+void Board::updateBernouli2(int i, float p){
     if (p >1 || p < 0){
         printf("INCORRECT INPUT FOR BERNOULI RV\n");
     }
@@ -38,70 +39,93 @@ void Board::updateBernouli2(int i, float p, float val){
     else{
         bernoulis2[i] = p;
         //printf("%d\n", i);
-        vals[i] = val;
     }
 }
 
 void Board::selectPiece(Controller* controller){
+    //user held down piece and the user is still touching
+    if (chain_mode && controller->touch == 0){
+        printf("undue chain mode\n");
+        chain_mode = false;
+    }
+    if(chain_mode && controller->touch > 0){
+        int i = selected_piece;
+        if(i-4 >= 0 && !active[i-4]){
+            //up
+            if(SDL_PointInRect(&controller->touchPosition, &pieces[i-4])){
+                printf("Here? in chain mode touch +\n");
+                selected_piece = i-4;
+                //if already in a chain we want to add to the tree
+                //add piece to chain
+                parents[selected_piece] = i;
+                children[i][0] = selected_piece;
+                active[i] = true;
+                active[selected_piece] = true;
+                mode = 0;
+                printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
+                chain_mode = false;
+                controller->touch = 0;
+            }
+        }
+        if(i-1 >= 0 && (i-1)%4 != 3 && !active[i-1]){
+            if(SDL_PointInRect(&controller->touchPosition, &pieces[i-1])){
+                selected_piece = i-1;
+                parents[selected_piece] = i;
+                children[i][2] = selected_piece;
+                active[i] = true;
+                active[selected_piece] = true;
+                mode = 0;
+                printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
+                chain_mode = false;
+                controller->touch = 0;
+
+
+            }
+        }
+        if(i+1 <= bernoulis.size()-1 && (i+1)%4 != 0 && !active[i+1]){
+            if(SDL_PointInRect(&controller->touchPosition, &pieces[i+1])){
+                selected_piece = i+1;
+                parents[selected_piece] = i;
+                children[i][3] = selected_piece;
+                active[i] = true;
+                active[selected_piece] = true;
+                mode = 0;
+                printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
+                chain_mode = false;
+                controller->touch = 0;
+
+
+            }
+        }
+        if(i+4 <= bernoulis.size()-1 && !active[i+4]){
+            if(SDL_PointInRect(&controller->touchPosition, &pieces[i+4])){
+                selected_piece = i+4;
+                parents[selected_piece] = i;
+                children[i][1] = selected_piece;
+                active[i] = true;
+                active[selected_piece] = true;
+                mode = 0;
+                printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
+                chain_mode = false;
+                controller->touch = 0;
+            }
+        }
+    }
     if(controller->touch > 0){
         if(mode == 0){
             for (int i = 0; i < pieces.size(); i++){
                 if(SDL_PointInRect(&controller->touchPosition, &pieces[i])){
                     selected_piece = i;
+                    clicked[i] += 1;
+                    if(clicked[i] > 30 && active[i] && !hasParents(i)){
+                        printf("chain mode activate%d\n",i);
+                        chain_mode = true;
+                    }
                     break;
                 }
-            }
-        }
-        else if(mode == 1){
-            int i = selected_piece;
-            if(i-4 >= 0 && !active[i-4]){
-                if(SDL_PointInRect(&controller->touchPosition, &pieces[i-4])){
-                    selected_piece = i-4;
-                    //if already in a chain we want to add to the tree
-                    //add piece to chain
-                    parents[selected_piece] = i;
-                    children[i][0] = selected_piece;
-                    active[i] = true;
-                    active[selected_piece] = true;
-                    mode = 0;
-                    printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
-                    
-                }
-            }
-            if(i-1 >= 0 && (i-1)%4 != 3 && !active[i-1]){
-                if(SDL_PointInRect(&controller->touchPosition, &pieces[i-1])){
-                    selected_piece = i-1;
-                    parents[selected_piece] = i;
-                    children[i][2] = selected_piece;
-                    active[i] = true;
-                    active[selected_piece] = true;
-                    mode = 0;
-                    printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
-
-                }
-            }
-            if(i+1 <= bernoulis.size()-1 && (i+1)%4 != 0 && !active[i+1]){
-                if(SDL_PointInRect(&controller->touchPosition, &pieces[i+1])){
-                    selected_piece = i+1;
-                    parents[selected_piece] = i;
-                    children[i][3] = selected_piece;
-                    active[i] = true;
-                    active[selected_piece] = true;
-                    mode = 0;
-                    printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
-
-                }
-            }
-            if(i+4 <= bernoulis.size()-1 && !active[i+4]){
-                if(SDL_PointInRect(&controller->touchPosition, &pieces[i+4])){
-                    selected_piece = i+4;
-                    parents[selected_piece] = i;
-                    children[i][1] = selected_piece;
-                    active[i] = true;
-                    active[selected_piece] = true;
-                    mode = 0;
-                    printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
-
+                else
+                {
+                    clicked[i] = 0;
                 }
             }
         }
@@ -126,7 +150,7 @@ void Board::renderPieces(SDL_Renderer* r){
         }
     }
     //if player want to add a chain
-    else if(mode == 1){
+    if(chain_mode){
         int i = selected_piece;
         SDL_SetRenderDrawColor(r, 238,130,238, 255);
         if(i-4 >= 0 && !active[i-4]){SDL_RenderFillRect(r, &pieces[i-4]);}
@@ -164,6 +188,9 @@ void Board::formatPieces(SDL_DisplayMode* Device, int normal_tile){
 void Board::deactivate(int i){
     if (active[i] != false){
         active[i] = false;
+        bernoulis[i] = 0;
+        bernoulis2[i] = 0;
+        value[i] = 2;
         size--;
     }
 }
@@ -175,7 +202,7 @@ void Board::activate(int i){
     
 }
 
-void Board::updateBernouli(int i, float p,float val){
+void Board::updateBernouli(int i, float p){
     if (p >1 || p < 0){
         printf("INCORRECT INPUT FOR BERNOULI RV\n");
     }
@@ -184,8 +211,6 @@ void Board::updateBernouli(int i, float p,float val){
     }
     else{
         bernoulis[i] = p;
-        //printf("%d\n", i);
-        vals[i] = val;
     }
 }
 
@@ -201,8 +226,13 @@ void Board::printBoard(){
 void Board::updateTotalProbability(){
     float total_prob = 1;
     for(int i = 0; i < active.size(); i++){
-        if(active[i] == true){
-            total_prob = total_prob * bernoulis[i];
+        if(active[i] == true && !hasParents(i)){
+            if(hasChildren(i)){
+                total_prob = total_prob * getProbChain(i);
+            }
+            else{
+                total_prob = total_prob * bernoulis[i];
+            }
         }
     }
     eventProb = total_prob;

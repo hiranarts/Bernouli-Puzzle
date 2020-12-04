@@ -22,11 +22,12 @@ class Board {
 public:
     //0 for normal , 1 for chain ,2 for set evidence
     int mode;
+    bool chain_mode;
     Board();
     int size;
+    vector<int> clicked;
     vector<float> bernoulis;
     vector<float> bernoulis2;
-    vector<float> vals;
     vector<bool> active;
     vector<int> parents;
     //0 for not happend 1 for happened 2 for unknown
@@ -44,8 +45,8 @@ public:
     void activate(int i);
     void deactivate(int i);
     void printBoard();
-    void updateBernouli(int i, float p,float val);
-    void updateBernouli2(int i, float p, float val);
+    void updateBernouli(int i, float p);
+    void updateBernouli2(int i, float p);
     void formatPieces(SDL_DisplayMode* Device, int normal_tile);
     void renderPieces(SDL_Renderer* r);
     

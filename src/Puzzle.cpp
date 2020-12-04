@@ -117,14 +117,16 @@ void Puzzle::inputButtons(Controller *inputs){
 void Puzzle::gameLoop(Controller* inputs){
     //update state of board
     board->selectPiece(inputs);
+    //check for chain mode active
+    
     //look for inputs in slider
     if(board->selected_piece > -1 && board->selected_piece < 15){
         sliders[0]->moveSliderToPosition(board->bernoulis[board->selected_piece]);
         sliders[0]->update(inputs);
         sliders[1]->moveSliderToPosition(board->bernoulis2[board->selected_piece]);
         sliders[1]->update(inputs);
-        board->updateBernouli(board->selected_piece, sliders[0]->val, 1);
-        board->updateBernouli2(board->selected_piece, sliders[1]->val, 1);
+        board->updateBernouli(board->selected_piece, sliders[0]->val);
+        board->updateBernouli2(board->selected_piece, sliders[1]->val);
         //look for inputs in buttons
         inputButtons(inputs);
     }
@@ -148,27 +150,30 @@ void Puzzle::updateText(SDL_Renderer* r){
     
     if(selected>=0 && selected < 16){
         //prob text
-        prob_text.free();
         char label[50];
-        snprintf(label, 50, "P(X|1)~%.2f",board->bernoulis[selected]);
+        prob_text.free();
+        snprintf(label, 50, "P(X)~%.2f",board->bernoulis[selected]);
         prob_text.createTextureFromString(r, controlFont, label);
         
-        //prob dependent text
-        prob_dependent_text.free();
-        snprintf(label, 50, "P(X|0)~%.2f",board->bernoulis2[selected]);
-        prob_dependent_text.createTextureFromString(r, controlFont, label);
         
-        //prob chian text
         prob_chain_text.free();
         if(board->hasChildren(board->selected_piece)){
-            printf("\nHas Children start%d\n",selected);
-            snprintf(label, 50, "P(CHAIN) ~ %.2f",board->getProbChain(selected));
+            
+            snprintf(label, 50, "P(CHAIN)~%.2f",board->getProbChain(selected));
             prob_chain_text.createTextureFromString(r, controlFont, label);
         }
         if(board->hasParents(selected)){
-            printf("\nHas Parents start%d\n",selected);
-            snprintf(label, 50, "P(CHAIN) ~ %.2f",board->getProbChain(board->parents[selected]));
+            snprintf(label, 50, "P(CHAIN)~%.2f",board->getProbChain(board->parents[selected]));
             prob_chain_text.createTextureFromString(r, controlFont, label);
+            
+            prob_text.free();
+            snprintf(label, 50, "P(X|1)~%.2f",board->bernoulis[selected]);
+            prob_text.createTextureFromString(r, controlFont, label);
+            //prob dependent text
+            prob_dependent_text.free();
+            snprintf(label, 50, "P(X|0)~%.2f",board->bernoulis2[selected]);
+            prob_dependent_text.createTextureFromString(r, controlFont, label);
+            
         }
     }
     
