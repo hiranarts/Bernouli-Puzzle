@@ -24,7 +24,8 @@ public:
     void updateLocation(int x , int y);
     void createTextureFromString(SDL_Renderer *r,TTF_Font *font, char str[]);
     void render(SDL_Renderer *r);
-    
+    //TODO: add width parameter
+    void createTextureFromStringWrapped(SDL_Renderer *r, TTF_Font *font, char str[]);
     void renderRect(SDL_Renderer *r, SDL_Color color);
 };
 

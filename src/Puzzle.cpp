@@ -10,16 +10,25 @@
 Puzzle::Puzzle(){
     //first initiialize the board grid
     no_pieces = 16;
-    
     board = new Board();
 }
 
 void Puzzle::initFont(int normalizer){
     //TODO: need to replace this with normalizer
     controlFont = TTF_OpenFont("assets/Bebas-Regular.ttf", normalizer);
+    puzzleFont = TTF_OpenFont("assets/Bebas-Regular.ttf", .5*normalizer);
     if(controlFont == NULL){
         printf("\n control font was not initialized \n");
     }
+    if(puzzleFont == NULL){
+        printf("\n puzzle font was not initialized \n");
+    }
+}
+
+void Puzzle::initPuzzleText(SDL_Renderer *r, char text[1000]){
+    puzzle_text.createTextureFromStringWrapped(r,puzzleFont, text);
+    
+    
 }
 
 void Puzzle::initSliders(){
@@ -34,7 +43,14 @@ void Puzzle::init(SDL_DisplayMode* Device, int normal_tile){
     SDL_Rect b = {normal_tile*5,normal_tile*13,normal_tile*1,normal_tile*1};
     int range = normal_tile*3;
     SDL_Rect b2 = {normal_tile*5,normal_tile*12,normal_tile*1,normal_tile*1};
+    
+    showPuzzle = false;
 
+    //puzzle text string
+    puzzle_text.location.x = normal_tile*1;
+    puzzle_text.location.y = normal_tile*1;
+    puzzle_text.location.w = normal_tile*7;
+    puzzle_text.location.h = normal_tile*10;
     
     sliders[0] = new Slider(b,range);
     sliders[1] = new Slider(b2,range);
@@ -54,24 +70,38 @@ void Puzzle::init(SDL_DisplayMode* Device, int normal_tile){
     //initialize buttons
     Texture temp;
     buttons.push_back(temp);
-    buttons[0].location.x = normal_tile*1;
+    buttons[0].location.x = normal_tile;
     buttons[0].location.y = normal_tile*15;
     buttons[0].location.w = normal_tile;
     buttons[0].location.h = normal_tile;
     
     Texture newtemp;
     buttons.push_back(newtemp);
-    buttons[1].location.x = normal_tile*3;
+    buttons[1].location.x = normal_tile*2;
     buttons[1].location.y = normal_tile*15;
     buttons[1].location.w = normal_tile;
     buttons[1].location.h = normal_tile;
     
     Texture chaintemp;
     buttons.push_back(chaintemp);
-    buttons[2].location.x = normal_tile*5;
+    buttons[2].location.x = normal_tile*4;
     buttons[2].location.y = normal_tile*15;
     buttons[2].location.w = normal_tile;
     buttons[2].location.h = normal_tile;
+    
+    Texture puzzletemp;
+    buttons.push_back(puzzletemp);
+    buttons[3].location.x = normal_tile*6;
+    buttons[3].location.y = normal_tile*15;
+    buttons[3].location.w = normal_tile;
+    buttons[3].location.h = normal_tile;
+    
+    Texture submittemp;
+    buttons.push_back(submittemp);
+    buttons[4].location.x = normal_tile*8;
+    buttons[4].location.y = normal_tile*15;
+    buttons[4].location.w = normal_tile;
+    buttons[4].location.h = normal_tile;
     
 }
 
@@ -91,22 +121,35 @@ void Puzzle::inputButtons(Controller *inputs){
         switch (selected) {
             //activate button
             case 0:
+                printf("activate button clicked\n");
                 board->activate(board->selected_piece);
                 board->mode = 0;
                 break;
             //deactivate button
             case 1:
+                printf("deactivate button clicked\n");
                 board->deactivate(board->selected_piece);
                 board->mode = 0;
                 break;
-            //chain piece
+            //set evidence piece
             case 2:
-                if(board->mode == 1){
+                printf("evidence button clicked\n");
+                if(board->mode == 2){
                     board->mode = 0;
                 }
                 else{
-                    board->mode = 1;
+                    board->mode = 2;
                 }
+                break;
+            //puzzle button
+            case 3:
+                printf("puzzle button clicked\n");
+                showPuzzle = !showPuzzle;
+                break;
+            //submit button
+            case 4:
+                printf("submit button clicked\n");
+                board->submit(ans,ans2,evid);
                 break;
             default:
                 break;
@@ -158,7 +201,6 @@ void Puzzle::updateText(SDL_Renderer* r){
         
         prob_chain_text.free();
         if(board->hasChildren(board->selected_piece)){
-            
             snprintf(label, 50, "P(CHAIN)~%.2f",board->getProbChain(selected));
             prob_chain_text.createTextureFromString(r, controlFont, label);
         }
@@ -198,6 +240,7 @@ void Puzzle::render(SDL_Renderer* r){
         }
     }
     
+    
     //
     //prob_dependent_text.render(r);
     //
@@ -209,6 +252,14 @@ void Puzzle::render(SDL_Renderer* r){
     buttons[1].renderRect(r, red);
     SDL_Color blue = {13,13,233,255};
     buttons[2].renderRect(r, blue);
+    SDL_Color cyan = {0,255,255};
+    buttons[3].renderRect(r, cyan);
+    SDL_Color gold = {212,175,55};
+    buttons[4].renderRect(r, gold);
+    
+    if(showPuzzle){
+        puzzle_text.render(r);
+    }
     
     
 }

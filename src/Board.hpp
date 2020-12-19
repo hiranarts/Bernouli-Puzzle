@@ -26,7 +26,9 @@ public:
     Board();
     int size;
     vector<int> clicked;
+    //if parent happened
     vector<float> bernoulis;
+    //if parent did not happend
     vector<float> bernoulis2;
     vector<bool> active;
     vector<int> parents;
@@ -61,6 +63,12 @@ public:
     float getProbChain(int index);
     bool hasParents(int index);
     bool hasChildren(int index);
+    
+    //setting evidence
+    void setEvidence(int index);
+    
+    //TODO: Add total probability as an argument, this will take care of proper parent child relationships
+    bool submit(vector<float> answer,vector<float> answer2,vector<int> evid);
     
     
 };

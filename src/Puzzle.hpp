@@ -23,7 +23,15 @@ public:
 
     
     Puzzle();
-
+    
+    vector<float> ans;
+    vector<float> ans2;
+    vector<int> evid;
+    
+    bool showPuzzle;
+    
+    Texture puzzle_text;
+    
     int no_pieces;
     
     Board* board;
@@ -38,8 +46,9 @@ public:
     
     Texture prob_total_text;
     
-        
     TTF_Font* controlFont;
+    
+    TTF_Font* puzzleFont;
     
     //buttons
     vector<Texture> buttons;
@@ -48,6 +57,8 @@ public:
     void init(SDL_DisplayMode* Device, int normal_tile);
     
     void initSliders();
+    
+    void initPuzzleText(SDL_Renderer* r, char text[1000]);
     
     void gameLoop(Controller* inputs);
     
@@ -58,5 +69,6 @@ public:
     void updateText(SDL_Renderer* r);
     
     void inputButtons(Controller *inputs);
+    
 };
 #endif /* Puzzle_hpp */

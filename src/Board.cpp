@@ -48,12 +48,20 @@ void Board::selectPiece(Controller* controller){
         printf("undue chain mode\n");
         chain_mode = false;
     }
+    if (mode == 2 and controller->touch > 0){
+        for(int i = 0; i < pieces.size(); i++){
+            if(hasParents(i)){
+                if(SDL_PointInRect(&controller->touchPosition, &pieces[i])){
+                    setEvidence(i);
+                }
+            }
+        }
+    }
     if(chain_mode && controller->touch > 0){
         int i = selected_piece;
         if(i-4 >= 0 && !active[i-4]){
             //up
             if(SDL_PointInRect(&controller->touchPosition, &pieces[i-4])){
-                printf("Here? in chain mode touch +\n");
                 selected_piece = i-4;
                 //if already in a chain we want to add to the tree
                 //add piece to chain
@@ -65,6 +73,7 @@ void Board::selectPiece(Controller* controller){
                 printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
                 chain_mode = false;
                 controller->touch = 0;
+                size++;
             }
         }
         if(i-1 >= 0 && (i-1)%4 != 3 && !active[i-1]){
@@ -78,7 +87,7 @@ void Board::selectPiece(Controller* controller){
                 printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
                 chain_mode = false;
                 controller->touch = 0;
-
+                size++;
 
             }
         }
@@ -93,6 +102,7 @@ void Board::selectPiece(Controller* controller){
                 printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
                 chain_mode = false;
                 controller->touch = 0;
+                size++;
 
 
             }
@@ -108,6 +118,8 @@ void Board::selectPiece(Controller* controller){
                 printf("Index %d, Parent [%d], children [%d,%d,%d,%d]", selected_piece, parents[selected_piece] , children[i][0],children[i][1],children[i][2],children[i][3]);
                 chain_mode = false;
                 controller->touch = 0;
+                size++;
+
             }
         }
     }
@@ -160,6 +172,15 @@ void Board::renderPieces(SDL_Renderer* r){
         SDL_RenderFillRect(r, &pieces[i]);
         
     }
+    //set evidence mode
+    if(mode == 2){
+        for (int i = 0; i < pieces.size(); i++){
+            SDL_SetRenderDrawColor(r,235,50*value[i],100,255);
+            if(hasParents(i)){
+                SDL_RenderFillRect(r, &pieces[i]);
+            }
+        }
+    }
 }
 
 void Board::formatPieces(SDL_DisplayMode* Device, int normal_tile){
@@ -187,6 +208,26 @@ void Board::formatPieces(SDL_DisplayMode* Device, int normal_tile){
 
 void Board::deactivate(int i){
     if (active[i] != false){
+        if(hasParents(i)){
+            printf("has parents and I am tring to delete it");
+            int p = parents[i];
+            for(int c = 0; c < 4; c++){
+                if(children[p][c] == i){
+                    printf("deleted child from parent %d", i);
+                    children[p][c] = -1;
+                    parents[i] = -1;
+                    break;
+                }
+            }
+        }
+        if(hasChildren(i)){
+            for(int c = 0; c < 4; c++){
+                if(children[i][c] != -1){
+                    printf("child about to be deleted: %d\n", children[i][c]);
+                    deactivate(children[i][c]);
+                }
+            }
+        }
         active[i] = false;
         bernoulis[i] = 0;
         bernoulis2[i] = 0;
@@ -240,36 +281,40 @@ void Board::updateTotalProbability(){
 
 float Board::getProbChain(int index){
     //find prob chain
-    float evidence = 1;
+    float evidence = 1.0f;
     float parent_prob = bernoulis[index];
+    float numerator = 1.0f;
+
+
     
     for (int i = 0; i < 4; i++){
-        int childID = children[index][i];
-        if(childID != -1 || value[childID] != 2){
-            //probability given parent happened
-            float mode1_prob = bernoulis[childID];
-            //probability given parent did not happen
-            float mode0_prob = bernoulis2[childID];
-            
-            
-            if(value[childID] == 0){
+        if(children[index][i] != -1){
+            int childID = children[index][i];
+            if(value[childID] != 2){
+                //probability given parent happened
+                float mode1 = bernoulis[childID];
+               
+                //probability given parent did not happen
+                float mode0 = bernoulis2[childID];
+                
                 //P(~ID) = P(~ID|Parent = 1)*P(Parent) + P(~ID|Parent = 0)P(~Parent).
-                float P_cid = (1-mode1_prob)*parent_prob + (1-mode0_prob)*(1-parent_prob);
-                //P(Parent|~ID) = P(~ID|Parent)P(Parent)/P(~ID)
-                parent_prob = parent_prob * (1-mode1_prob);
-                evidence = evidence * P_cid;
-            }
-            else if(value[childID] == 1){
-                //P(ID) = P(ID|Parent = 1)*P(Parent) + P(ID|Parent = 0)P(~Parent).
-                float P_cid = (mode1_prob)*parent_prob + (mode0_prob)*(1-parent_prob);
-                //P(Parent|ID) = P(ID|Parent)P(Parent)/P(ID)
-                parent_prob = parent_prob * (mode1_prob);
-                evidence = evidence * P_cid;
+                float P_ID = mode1*parent_prob + mode0*(1-parent_prob);
+                
+                
+                if(value[childID] == 0){
+                    //p(X) = product [P(ID)]
+                    evidence *= (1-P_ID);
+                    numerator *= 1-mode1;
+                }
+                if(value[childID] == 1){
+                    evidence *= P_ID;
+                    numerator *= mode1;
+                }
             }
         }
     }
     //P(Parent|evidence) = P(evidence|Parent)P(Parent)/P(evidence)
-    return parent_prob/evidence;
+    return (parent_prob*numerator)/evidence;
     
 }
 
@@ -287,4 +332,39 @@ bool Board::hasChildren(int index){
         }
     }
     return false;
+}
+
+void Board::setEvidence(int index){
+    value[index] = (value[index] + 1)%3;
+}
+
+
+bool Board::submit(vector<float> answer,vector<float> answer2,vector<int> evid){
+    //size check
+    if(answer.size() != size){
+        if(answer.size() < size){
+            printf("Too many tiles\n");
+            return false;
+        }
+        else{
+            printf("Too few tiles\n");
+            return false;
+        }
+    }
+    vector<int> checked;
+    for(int i = 0; i < answer.size(); i++){
+        for(int j = 0; j < bernoulis.size(); j++){
+            if(answer[i] == bernoulis[j] && answer2[i] == bernoulis2[j] && evid[i] == value[j] && (count(checked.begin(), checked.end(), j) == 0)){
+                printf("id:%d answer:%.2f ,answer2:%.2f evidence:%d\n",j,bernoulis[j] , bernoulis2[j],value[j]);
+                checked.push_back(j);
+                break;
+            }
+        }
+    }
+    if(checked.size() != answer.size()){
+        printf("No bueno\n");
+        return false;
+    }
+    printf("bueno\n");
+    return true;
 }
